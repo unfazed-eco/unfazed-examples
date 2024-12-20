@@ -1,0 +1,3 @@
+site_name: tutorial
+nav:
+  - Home: index.md
