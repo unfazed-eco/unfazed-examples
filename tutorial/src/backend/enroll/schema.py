@@ -2,43 +2,26 @@ import typing as t
 
 from pydantic import BaseModel
 
-# ------ request schemas ------
+from .serializers import CourseSerializer, StudentSerializer
 
 
-class StudentList(BaseModel):
-    page: int = 1
-    size: int = 10
-    search: str = ""
+class BaseResponse(BaseModel):
+    status: str
+    message: str
 
 
-class CourseCreate(BaseModel):
-    name: str
+class StudentListResponse(BaseResponse):
+    data: t.List[StudentSerializer]
 
 
-class StudentCreate(BaseModel):
-    first_name: str
-    last_name: str
-    courses: t.List[CourseCreate] | None = None
+class CourseListResponse(BaseResponse):
+    data: t.List[CourseSerializer]
 
 
-# ------ response schemas ------
+class BindRequest(BaseModel):
+    student_id: int
+    course_id: int
 
 
-class Student(BaseModel):
-    id: int
-    first_name: str
-    last_name: str
-    created_at: str
-    updated_at: str
-
-
-class StudentListResp(BaseModel):
-    count: int
-    data: t.List[Student]
-
-
-class Course(BaseModel):
-    id: int
-    name: str
-    created_at: str
-    updated_at: str
+class BindResponse(BaseResponse):
+    data: t.Dict = {}
