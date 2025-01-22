@@ -3,21 +3,21 @@ from tortoise import Model, fields
 
 class Student(Model):
     id = fields.IntField(pk=True)
-    first_name = fields.CharField(max_length=255)
-    last_name = fields.CharField(max_length=255)
+    name = fields.CharField(max_length=255)
+    age = fields.IntField()
     created_at = fields.DatetimeField(auto_now_add=True)
     updated_at = fields.DatetimeField(auto_now=True)
 
-    class Meta:
-        table = "students"
+    courses = fields.ManyToManyField(
+        "models.Course", related_name="students", through="course_student"
+    )
 
 
 class Course(Model):
     id = fields.IntField(pk=True)
     name = fields.CharField(max_length=255)
-    students = fields.ManyToManyField("models.Student", related_name="courses")
+    description = fields.TextField()
     created_at = fields.DatetimeField(auto_now_add=True)
     updated_at = fields.DatetimeField(auto_now=True)
 
-    class Meta:
-        table = "courses"
+    students: fields.ManyToManyRelation[Student]

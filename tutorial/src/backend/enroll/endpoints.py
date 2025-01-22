@@ -1,37 +1,37 @@
 import typing as t
 
-from unfazed.http import HttpRequest, JsonResponse
+from unfazed.http import HttpRequest, JsonResponse, PlainTextResponse
 from unfazed.route import params as p
 
-from .schema import StudentCreate, StudentList, StudentListResp
-from .services import StudentService
+from . import schema as s
+from . import services as svc
+
+
+async def hello(request: HttpRequest) -> PlainTextResponse:
+    return PlainTextResponse("Hello, world!")
 
 
 async def list_student(
-    request: HttpRequest, ctx: t.Annotated[StudentList, p.Query()]
-) -> t.Annotated[JsonResponse, StudentListResp]:
-    cond: t.Dict[str, t.Any] = {}
-    if ctx.search:
-        cond["first_name__icontains"] = ctx.search
-    ret = await StudentService.list_students(cond, ctx.page, ctx.size)
-
-    return JsonResponse(ret)
-
-
-async def create_student(
-    request: HttpRequest, ctx: t.Annotated[StudentCreate, p.Json()]
-) -> t.Annotated[JsonResponse, StudentListResp]:
-    ret = await StudentService.create_student(ctx)
-
+    request: HttpRequest,
+    page: t.Annotated[int, p.Query(default=1)],
+    size: t.Annotated[int, p.Query(default=10)],
+) -> t.Annotated[JsonResponse, p.ResponseSpec(model=s.StudentListResponse)]:
+    ret = await svc.EnrollService.list_student(page, size)
     return JsonResponse(ret)
 
 
 async def list_course(
-    request: HttpRequest, ctx: t.Annotated[StudentList, p.Query()]
-) -> t.Annotated[JsonResponse, StudentListResp]:
-    cond: t.Dict[str, t.Any] = {}
-    if ctx.search:
-        cond["name__icontains"] = ctx.search
-    ret = await StudentService.list_courses(cond, ctx.page, ctx.size)
+    request: HttpRequest,
+    page: t.Annotated[int, p.Query(default=1)],
+    size: t.Annotated[int, p.Query(default=10)],
+) -> t.Annotated[JsonResponse, p.ResponseSpec(model=s.CourseListResponse)]:
+    ret = await svc.EnrollService.list_course(page, size)
+    return JsonResponse(ret)
 
+
+async def bind(
+    request: HttpRequest,
+    ctx: t.Annotated[s.BindRequest, p.Json()],
+) -> t.Annotated[JsonResponse, p.ResponseSpec(model=s.BindResponse)]:
+    ret = await svc.EnrollService.bind(ctx.student_id, ctx.course_id)
     return JsonResponse(ret)
